@@ -1,20 +1,12 @@
 library(rvest)
 library(dplyr)
 library(stringr)
-library(readxl)
 library(magrittr)
 
-rm(list = ls())
-gc()
-
-#Sys.setenv(TZ='EDT')
-
-#setwd("C:/Users/maran/Dropbox/Web Scraping")
-setwd("C:/Users/Administrator/Dropbox/Web_Scraping")
 source("./code/Posh Scraping Functions.R")
 
-# Read in list of input URLs
-url_inputs <- read_excel("./input/Just Sold URLs.xlsx", sheet = "All")
+# Get list of input URLs from master code
+
 names(url_inputs) %<>% tolower %>% gsub(" ", "_", .)
 url_inputs %<>% select(market, category, subcategory, price_range, page, url)
 
@@ -59,8 +51,3 @@ saveid <- paste0(date, "_", time)
 
 scraped_results$scrape_id <- saveid
 
-saveRDS(scraped_results, file = paste0("./inter/just_sold/results_", saveid,".RDS"))
-
-
-
-                              
