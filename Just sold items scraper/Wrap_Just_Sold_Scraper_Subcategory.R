@@ -12,7 +12,7 @@ setwd("C:/Users/maran/Dropbox/Web Scraping")
 # Read in list of input URLs
 url_inputs <- read_excel("./input/Just Sold URLs Subcategories.xlsx", sheet = "All")
 
-source("./code_git/Just_Sold_Scraper_Base Code.R")
+source("./code_git/Just sold items scraper/Just_Sold_Scraper_Base Code.R")
 
 
 saveRDS(scraped_results, file = paste0("./inter/just_sold/results_subcategory_", saveid,".RDS"))
