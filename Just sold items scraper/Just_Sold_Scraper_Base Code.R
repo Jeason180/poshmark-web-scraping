@@ -3,7 +3,7 @@ library(dplyr)
 library(stringr)
 library(magrittr)
 
-source("./code_git/Just sold items scraper/Posh Scraping Functions.R")
+source("./code_git/Posh Scraping Functions.R")
 
 # Get list of input URLs from master code
 
