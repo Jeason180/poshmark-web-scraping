@@ -206,34 +206,6 @@ ScrapeSearchResults <- function(node){
 ## Wrapper Functions
 ScrapeSearchResultsWrap <- function(search_url, n = "all"){
   
-  # Pull in html data
-  webpage <- read_html(search_url)
-  
-  scrape_time <- Sys.time()
-  
-  # Node for each item
-  box_html <- html_nodes(webpage, ".tile")
-  
-  i <<- 0
-  num <- ifelse(n == "all", length(box_html), n)
-  cat(paste("Scraping ", num, "items: \n"))
-  
-  # Apply ScrapeSearchResults to each item in the results page
-  scraped_results <- lapply(box_html[1:num], ScrapeSearchResults) %>% bind_rows
-  
-  scraped_results$scrape_time <- scrape_time
-  scraped_results$search_url <- search_url
-  
-  q <- rnorm(1, sd = 0.5)
-  Sys.sleep(3+q)
-  
-  
-  return(scraped_results)
-  
-}
-
-ScrapeSearchResultsWrap_Modified <- function(search_url, n = "all"){
-  
   cat(paste("Scraping ", search_url, "\n"))
   
   webpage <- try(read_html(search_url))
@@ -252,7 +224,13 @@ ScrapeSearchResultsWrap_Modified <- function(search_url, n = "all"){
   num <- ifelse(n == "all", length(box_html), n)
   #cat(paste("Scraping ", num, "items: \n"))
   
-  test_result <- ScrapeSearchResults(box_html[16])
+  if(length(box_html) < 16){
+    test_num <- length(box_html)
+  } else {
+    test_num <- 16
+  }
+  
+  test_result <- ScrapeSearchResults(box_html[test_num])
   
   if(length(test_result) > 0){  
   scraped_results <- lapply(box_html[1:num], ScrapeSearchResults) %>% bind_rows

@@ -3,7 +3,7 @@ library(dplyr)
 library(stringr)
 library(magrittr)
 
-source("./code/Posh Scraping Functions.R")
+source("./code_git/Posh Scraping Functions.R")
 
 # Get list of input URLs from master code
 
@@ -14,7 +14,7 @@ url_inputs %<>% select(market, category, subcategory, price_range, page, url)
 # Run scraper through URL inputs
 ptm <- proc.time()
 scrape_urls <-url_inputs$url
-scraped_results_list <- lapply(scrape_urls, ScrapeSearchResultsWrap_Modified)
+scraped_results_list <- lapply(scrape_urls, ScrapeSearchResultsWrap)
 proc.time() - ptm
 
 result_classes <- sapply(scraped_results_list, class)
@@ -23,7 +23,7 @@ scraped_results_list <- scraped_results_list[result_classes != "character"]
 gc()
 
 # Rescrape - any URLs that failed
-scraped_results_list2 <- lapply(rescrape_round2, ScrapeSearchResultsWrap_Modified)
+scraped_results_list2 <- lapply(rescrape_round2, ScrapeSearchResultsWrap)
 result_classes2 <- sapply(scraped_results_list2, class)
 scraped_results_list2 <- scraped_results_list2[result_classes2 != "character"]
 
