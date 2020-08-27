@@ -8,8 +8,8 @@ setwd("C:/Users/maran/Documents/Data Projects/Web Scraping/Scraped datasets")
 rm(list = ls())
 gc()
 
-date_sold_start <- "2020-06-29"
-date_sold_end   <- "2020-06-29"
+date_sold_start <- "2020-06-13"
+date_sold_end   <- "2020-06-13"
 
 # Load data
 scraped_data <- readRDS("scraped_2020-06_ALL.RDS")
@@ -21,7 +21,7 @@ missing_price_all <- scraped_data %>%
 missing_price <- missing_price_all %>%
   filter(date_sold >= date_sold_start & date_sold <= date_sold_end)
 
-missing_price %<>% mutate(item_url = paste0("http://www.poshmark.com/", item_url))
+missing_price %<>% mutate(item_url = paste0("http://www.poshmark.com", item_url))
 
 
 # Nodes to Text Wrapper
@@ -50,6 +50,7 @@ ScrapePriceSize <- function(item_url, item_id){
                           size = NA,
                           item_url = item_url,
                           date_scraped = now,
+                          fail_reason = "URL Read",
                           stringsAsFactors = F)
     
     q <- runif(1, min = 0.1, max = 1)
@@ -62,6 +63,28 @@ ScrapePriceSize <- function(item_url, item_id){
   
   # Grabbing price and size info
   price <- NodesToText(webpage, ".listing__ipad-centered h1")
+  
+  # If price is NA, move on
+  if(is.na(price)){
+    cat(paste("Item", i, "price is NA, returning NULL \n"))
+    results <- data.frame(item_id = item_id,
+                          title = NA,
+                          price = NA,
+                          size = NA,
+                          item_url = item_url,
+                          date_scraped = now,
+                          fail_reason = "Price NA",
+                          stringsAsFactors = F)
+    
+    q <- runif(1, min = 0.1, max = 1)
+    Sys.sleep(1+q)
+    
+    rm(webpage)
+    gc()
+    return(results)
+  }
+  
+  
   price <- strsplit(price, "\n")[[1]][1] %>% gsub("$", "", ., fixed = T) %>% 
     gsub(",", "", ., fixed = T) %>% as.numeric
   
@@ -74,6 +97,7 @@ ScrapePriceSize <- function(item_url, item_id){
                         size = size,
                         item_url = item_url,
                         date_scraped = now,
+                        fail_reason = "success",
                         stringsAsFactors = F)
   
   if(nrow(results) !=1) cat(paste("Warning: item", title, "does not have 1 entry \n"))
@@ -108,6 +132,6 @@ full_results <- bind_rows(results, results2) %>% filter(!is.na(price)) %>% selec
 # Join back with the info before
 price_results <- left_join(missing_price, full_results, by = c("item_id", "item_url")) %>% filter(!is.na(price))
 
-save(price_results, file ="./price rescrape files/prices_2020-06-29.RDa")
+save(price_results, file ="./price rescrape files/prices_2020-06-13.RDa")
 
 
