@@ -8,7 +8,7 @@ rm(list = ls())
 setwd("C:/Users/maran/Dropbox/Web Scraping")
 source("./code/Posh Scraping Functions.R")
 
-# Update the handle of each closet you want to scrape. 
+# Update the handle of each closet you want to scrape.
 # All other file paths update automatically, given folder structure
 user <- "maranna_yo"
 date <- "20200904"
@@ -37,8 +37,9 @@ closet <- ScrapeItemWrap(links_to_scrape)
 end_time <- Sys.time()
 end_time - start_time
 
-closet %<>% mutate(date_sold = map_dbl(item_id, DateSold, closet = closet),
-                   date_sold = as.Date(date_sold, origin = "1970-01-01"))
+closet %<>% mutate(
+  date_sold = map_dbl(item_id, DateSold, closet = closet),
+  date_sold = as.Date(date_sold, origin = "1970-01-01")
+)
 
 save(closet, file = paste0("./inter/individual closets/", user, "/closet_items_", handle, ".RDa"))
-
