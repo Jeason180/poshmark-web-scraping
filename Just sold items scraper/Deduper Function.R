@@ -6,22 +6,17 @@ library(filesstrings)
 library(tidyr)
 library(lubridate)
 
-setwd("C:/Users/maran/Documents/Data Stuff/Web Scraping/Scraped datasets")
+setwd("C:/Users/maran/Documents/Data Projects/Web Scraping/Scraped datasets")
 rm(list = ls())
 gc()
 
 # Read in all files
-# files_to_read <- list.files("./inter/just_sold") %>% setdiff(c("logs", "compiled_datasets", "scraped_solds_compiled.RDS", "scraped_solds_compiled - Copy.RDS"))
-# files_to_read <- paste0("./inter/just_sold/", files_to_read)
-files_to_read <- list.files("raw files/2020-07")
-files_to_read <- paste0("./raw files/2020-07/", files_to_read)
-
-#compiled_data <- readRDS("./inter/just_sold/scraped_solds_compiled.RDS")
-#files <- lapply(files_to_read, function(x) results <- readRDS(x))
+files_to_read <- list.files("raw files/2020-08")
+files_to_read <- paste0("./raw files/2020-08/", files_to_read)
 
 scraped_items <-lapply(files_to_read, function(x) results <- readRDS(x)) %>% bind_rows
 
-old_items <- readRDS("scraped_2020-06_ALL.RDS")
+old_items <- readRDS("scraped_2020-07_ALL.RDS")
 gc()
 
 
@@ -178,58 +173,9 @@ Dedupe_Merge <- function(new_items, compiled_items = NULL){
 results <- Dedupe_Merge(scraped_items, compiled_items = old_items)
 gc()
 
-results_crop <- results %>% filter(date_sold >= "2020-07-01" & date_sold <= "2020-07-31")
-saveRDS(results_crop, "scraped_2020-07_ALL.RDS")
+results_crop <- results %>% filter(date_sold >= "2020-08-01" & date_sold <= "2020-08-31")
+saveRDS(results_crop, "scraped_2020-08_ALL.RDS")
 
 
-scraped_items_output <- results %>% select(-item_url, -search_url)
-write.csv(scraped_items_output, "C:/Users/maran/Dropbox/Web Scraping/output/just sold/scraped_solds.csv", row.names = F)
-
-
-
-
-
-
-
-
-# Figuring out which hours have most traffic
-
-scraped_items <- results
-scraped_items %<>% mutate(hour = hour(scrape_time))
-
-skip_dates <- c("2020-03-25", "2020-03-26", "2020-03-30", "2020-04-05", "2020-04-12") %>% as.Date()
-
-hourly_count <- scraped_items %>%
-  group_by(market, category, price_range, date_sold, hour) %>%
-  summarize(count = n()) %>%
-  filter(!(date_sold %in% skip_dates)) %>%
-  filter(!(date_sold == "2020-04-02" & hour == 11)) %>%
-  filter(!(date_sold == "2020-04-13" & hour == 0)) %>%
-  filter(!(date_sold == "2020-03-28" & hour == 16))
-
-category_results <- hourly_count %>%
-  group_by(market, category, price_range) %>%
-  summarize(obs = n(),
-            avg_sold = mean(count),
-            median_sold = median(count),
-            sold_90 = quantile(count, 0.95),
-            max_sold = max(count))
-
-
-hourly_count_subcategory <- scraped_items %>%
-  group_by(market, category, subcategory, price_range, date_sold, hour) %>%
-  summarize(count = n()) %>%
-  filter(!(date_sold %in% skip_dates)) %>%
-  filter(!(date_sold == "2020-04-02" & hour == 11)) %>%
-  filter(!(date_sold == "2020-04-13" & hour == 0)) %>%
-  filter(!(date_sold == "2020-03-28" & hour == 16))
-
-subcategory_results <- hourly_count_subcategory %>%
-  group_by(market, category, subcategory, price_range) %>%
-  summarize(obs = n(),
-            avg_sold = mean(count),
-            median_sold = median(count),
-            sold_90 = quantile(count, 0.95),
-            max_sold = max(count)) %>%
-  filter(!is.na(subcategory) & obs > 20) %>%
-  arrange(-sold_90)
+#scraped_items_output <- results %>% select(-item_url, -search_url)
+#write.csv(scraped_items_output, "C:/Users/maran/Dropbox/Web Scraping/output/just sold/scraped_solds.csv", row.names = F)
