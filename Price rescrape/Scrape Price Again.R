@@ -8,7 +8,7 @@ setwd("C:/Users/maran/Documents/Data Projects/Web Scraping/Scraped datasets")
 rm(list = ls())
 gc()
 
-date <- "2020-05-26"
+date <- "2020-05-25"
 
 date_sold_start <- date
 date_sold_end <- date
