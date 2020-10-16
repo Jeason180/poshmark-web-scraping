@@ -8,16 +8,19 @@ setwd("C:/Users/maran/Documents/Data Projects/Web Scraping/Scraped datasets")
 rm(list = ls())
 gc()
 
-date <- "2020-05-25"
+date <- "2020-05-07"
 
-date_sold_start <- date
-date_sold_end <- date
+#date_sold_start <- date
+#date_sold_end <- date
+
+date_sold_start <- "2020-05-01"
+date_sold_end <- "2020-05-31"
 
 # Load data
-scraped_data <- readRDS("scraped_2020-05_ALL.RDS")
+scraped_data <- readRDS("scraped_2020-06_ALL.RDS")
 
 missing_price_all <- scraped_data %>%
-  filter(is.na(price)) %>%
+  filter(is.na(price) | is.na(size)) %>%
   select(item_id, title, item_url, date_sold, user)
 
 missing_price <- missing_price_all %>%
