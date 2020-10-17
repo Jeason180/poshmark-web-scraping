@@ -20,7 +20,7 @@ db_user <- "postgres"
 db_password <- "Poshmark"
 
 con <- dbConnect(RPostgres::Postgres(), dbname = db, host = host_db, port = db_port, user = db_user, password = db_password)
-dbListTables(con)
+#dbListTables(con)
 
 # Load data
 scraped_data <- readRDS("scraped_2020-04_ALL.RDS") %>%
@@ -66,3 +66,11 @@ remove8 <- AddMonth("scraped_2020-08_ALL.RDS")
 remove9 <- AddMonth("scraped_2020-09_ALL.RDS")
 
 save(remove5, remove6, remove7, remove8, remove9, file = "./sql/removed_ids_5-9.RDa")
+
+
+# one off removals
+dbSendQuery(con, "DELETE FROM solds WHERE item_id = '5b03b92b3b1608d5e527040b'") # not a real price, distorts results
+
+
+# update Pants category to Pants & Jumpsuits
+dbSendQuery(con, "UPDATE solds SET category = 'Pants & Jumpsuits' WHERE category = 'Pants' AND market = 'Women'") 
