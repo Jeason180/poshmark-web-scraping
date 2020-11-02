@@ -22,18 +22,35 @@ db_password <- "Poshmark"
 con <- dbConnect(RPostgres::Postgres(), dbname = db, host = host_db, port = db_port, user = db_user, password = db_password)
 #dbListTables(con)
 
-# Load data
+
+# Load initial data
 scraped_data <- readRDS("scraped_2020-04_ALL.RDS") %>%
   data.frame() %>%
   mutate(days_to_sell = as.numeric(days_to_sell)) %>%
   rename(posh_user = user)
 
+# change AA_multiple category
+scraped_data %<>% mutate(subcategory = if_else(subcategory == "AA_Multiple", 
+                                               "Multiple", subcategory))
+
+# Update Pants category to Pants & Jumpsuits
+scraped_data %<>% mutate(category = if_else(category == "Pants" & market == "Women", 
+                                            "Pants & Jumpsuits", category))
+
+# Update helper categories
+scraped_data %<>% mutate(mkt_cat = paste(market, category, sep = "_"),
+                         super_category = paste(market, category, subcategory, sep = "_"))
+
 # Add to database
 dbWriteTable(con, name = "solds", value = scraped_data, overwrite = T)
-dbGetQuery(con, 'ALTER TABLE solds ADD CONSTRAINT solds_pk PRIMARY KEY ("item_id")')
+dbSendQuery(con, 'ALTER TABLE solds ADD CONSTRAINT solds_pk PRIMARY KEY ("item_id")')
 
 rm(scraped_data)
 gc()
+
+
+
+
 
 
 # Append further months
@@ -42,6 +59,17 @@ AddMonth <- function(filepath){
     data.frame() %>%
     mutate(days_to_sell = as.numeric(days_to_sell)) %>%
     rename(posh_user = user)
+  
+  # Update categories
+  scraped_data %<>% mutate(subcategory = if_else(subcategory == "AA_Multiple", 
+                                                 "Multiple", subcategory))
+  scraped_data %<>% mutate(category    = if_else(category == "Pants" & market == "Women", 
+                                                 "Pants & Jumpsuits", category))
+  
+  # Update helper categories
+  scraped_data %<>% mutate(mkt_cat = paste(market, category, sep = "_"),
+                           super_category = paste(market, category, subcategory, sep = "_"))
+  
   
   id_query <- dbSendQuery(con, "SELECT item_id FROM solds")
   existing_id <- dbFetch(id_query)
@@ -72,5 +100,15 @@ save(remove5, remove6, remove7, remove8, remove9, file = "./sql/removed_ids_5-9.
 dbSendQuery(con, "DELETE FROM solds WHERE item_id = '5b03b92b3b1608d5e527040b'") # not a real price, distorts results
 
 
+
+# SQL extras
+# change AA_Multiple category
+#dbSendQuery(con, "UPDATE solds SET subcategory = 'Multiple' WHERE subcategory = 'AA_Multiple'") 
+
 # update Pants category to Pants & Jumpsuits
-dbSendQuery(con, "UPDATE solds SET category = 'Pants & Jumpsuits' WHERE category = 'Pants' AND market = 'Women'") 
+#dbSendQuery(con, "UPDATE solds SET category = 'Pants & Jumpsuits' WHERE category = 'Pants' AND market = 'Women'") 
+#dbSendQuery(con, "UPDATE solds SET mkt_cat = 'Women_Pants & Jumpsuits' WHERE mkt_cat = 'Women_Pants'") 
+#dbSendQuery(con, "UPDATE solds SET super_category = CONCAT_WS('_', market, category, subcategory)") 
+#dbSendQuery(con, "UPDATE solds SET super_category = CONCAT_WS('_', super_category, 'NA') WHERE subcategory IS NULL") 
+
+#test <- dbGetQuery(con, "SELECT super_category, COUNT(item_id) FROM solds GROUP BY super_category")
