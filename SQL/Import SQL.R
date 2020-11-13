@@ -23,6 +23,11 @@ con <- dbConnect(RPostgres::Postgres(), dbname = db, host = host_db, port = db_p
 #dbListTables(con)
 
 
+
+
+
+### Only run when setting up initial database
+
 # Load initial data
 scraped_data <- readRDS("scraped_2020-04_ALL.RDS") %>%
   data.frame() %>%
@@ -50,6 +55,9 @@ gc()
 
 
 
+
+
+### Function to add additional months of data
 
 
 
@@ -94,6 +102,9 @@ remove8 <- AddMonth("scraped_2020-08_ALL.RDS")
 remove9 <- AddMonth("scraped_2020-09_ALL.RDS")
 
 save(remove5, remove6, remove7, remove8, remove9, file = "./sql/removed_ids_5-9.RDa")
+
+remove10 <- AddMonth("scraped_2020-10_ALL.RDS")
+save(remove10, file = "./sql/removed_ids_10.RDa")
 
 
 # one off removals

@@ -1,6 +1,5 @@
 library(rvest)
 library(tidyverse)
-library(stringr)
 library(lubridate)
 library(magrittr)
 
@@ -43,3 +42,11 @@ closet %<>% mutate(
 )
 
 save(closet, file = paste0("./inter/individual closets/", user, "/closet_items_", handle, ".RDa"))
+
+
+closet    %<>% mutate(days_to_sell = as.numeric(date_sold - date_posted),
+                      month_sold = floor_date(date_sold, "month"),
+                      year_sold = year(date_sold),
+                      month_posted = floor_date(date_posted, "month"))
+
+save(closet, file = paste0("./output/closets/closet_", handle, ".RDa"))

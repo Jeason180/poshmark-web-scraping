@@ -9,12 +9,12 @@ rm(list = ls())
 gc()
 
 
-scraped_data <- readRDS("scraped_2020-09_ALL.RDS")
+scraped_data <- readRDS("scraped_2020-10_ALL.RDS")
 
 #date <- "2020-06-26"
 
-date_sold_start <- "2020-09-01"
-date_sold_end <- "2020-09-30"
+date_sold_start <- "2020-10-19"
+date_sold_end <- "2020-10-31"
 
 
 missing_subcategory_all <- scraped_data %>%
@@ -147,7 +147,7 @@ full_results <- bind_rows(results, results2) %>%
 subcategory_results <- left_join(missing_subcategory, full_results, by = c("item_id", "item_url"))
 
 
-save(subcategory_results, file = paste0("./price rescrape files/subcategory_2020-09_rescrape.RDa"))
+save(subcategory_results, file = paste0("./price rescrape files/subcategory_2020-10_rescrape_part2.RDa"))
 
 
 

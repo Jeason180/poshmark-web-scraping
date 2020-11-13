@@ -117,11 +117,11 @@ subcategory_sales %<>% mutate(count = as.numeric(count),
          roll_count = rollmean(count, 7, na.pad = T, align = "right"))
 
 # Graph
-subcategory_graph_w <- subcategory_sales %>% filter(date_sold >= "2020-08-01" & category == "Dresses") %>%
+subcategory_graph_w <- subcategory_sales %>% filter(date_sold >= "2020-08-01" & category == "Shoes") %>%
   ggplot(data = ., aes(x = date_sold, y = roll_sum/1000)) + 
   geom_line(aes(color = subcategory), size = 1.3) +
-  scale_x_date(expand = expansion(add = c(0,15)))  + 
-  geom_dl(aes(label = subcategory), method = list(dl.trans(x = x + 0.1), "last.qp", cex = 0.8)) +
+  scale_x_date(expand = expansion(add = c(0,30)))  + 
+  geom_dl(aes(label = subcategory), method = list(dl.trans(x = x + 0.1), "last.points", cex = 0.8)) +
   labs(title = "Women's Clothing Poshmark Sales (7 Day Rolling Average)", x = "Date", y = "Average Daily Sales ($ thousands)")
 
 subcategory_graph_w
@@ -136,19 +136,6 @@ brand_sales %<>% filter(count >=5) %>% arrange(desc(sum))
 
 
 # Seasonality
-
-season_categories <- c("Jackets & Coats", "Jeans", "Sweaters", "Shorts", "Swim")
-
-sea_category_graph <- category_sales %>% 
-  filter(date_sold >= "2020-07-01" & market == "Women") %>%
-  filter(category %in% season_categories) %>%
-  ggplot(data = ., aes(x = date_sold, y = roll_sum/1000)) + 
-  geom_line(aes(color = category), size = 1.3) +
-  scale_x_date(expand = expansion(add = c(0,15)))  + 
-  geom_dl(aes(label = short_label), method = list(dl.trans(x = x + 0.1), "last.qp", cex = 0.8)) +
-  labs(title = "Women's Seasonal Categories (7 Day Rolling Average)", x = "Date", y = "Average Daily Sales ($ thousands)")
-
-sea_category_graph
 
 
 season_subcat_shoes <- subcategory_sales %>% 
@@ -233,6 +220,7 @@ days_to_sell %<>%
   group_by(market, bin) %>%
   summarize(cumulative_percent = sum(percent))
 
+dts_avg <- dbGetQuery(con, "SELECT market, AVG(days_to_sell) FROM solds WHERE days_to_sell < 365 GROUP BY market")
 
 
 
@@ -242,14 +230,14 @@ sizes <- dbGetQuery(con, "SELECT market, category, size, COUNT(item_id), SUM(pri
 
 sizes %<>% filter(count > 1) %>% arrange(-count)
 
-sizes_regular_vec <- c("XXS", "XS", "S", "M", "L", "XL")
+sizes_standard_vec <- c("XXS", "XS", "S", "M", "L", "XL")
 sizes_shoes_vec <- seq(from = 5, to = 13, by = 0.5)
 sizes_dress_vec <- c("00", as.character(seq(from = 0, to = 12, by = 2)))
 sizes_jeans_vec <- 23:31
-sizes_regular_all_vec <- c(sizes_regular_vec, sizes_dress_vec, sizes_jeans_vec)
+sizes_standard_all_vec <- c(sizes_standard_vec, sizes_dress_vec, sizes_jeans_vec)
 
 sizes_ambiguous <- c(24, 26, 28, 30)
-sizes_regular_all_diff <- setdiff(sizes_regular_all_vec, sizes_ambiguous) # ambiguous sizes
+sizes_standard_all_diff <- setdiff(sizes_standard_all_vec, sizes_ambiguous) # ambiguous sizes
 
 
 sizes_plusnum_vec <- seq(from = 14, to = 32, by = 2)
@@ -264,7 +252,7 @@ sizes_plus_petite <- sizes %>%
   filter(market == "Women") %>%
   filter(!(category %in% c("Shoes"))) %>%
   mutate(size = as.character(size)) %>%
-  mutate(size_type = case_when(size %in% sizes_regular_all_diff ~ "Regular",
+  mutate(size_type = case_when(size %in% sizes_standard_all_diff ~ "Standard",
                                size %in% sizes_plus_vec ~ "Plus",
                                size %in% sizes_petite_vec ~ "Petite")) %>%
   mutate(size_type = if_else((size %in% sizes_ambiguous & category %in% c("Jeans", "Pants & Jumpsuits", "Shorts")),
@@ -287,9 +275,9 @@ sizes_pp_detail <- sizes_plus_petite %>%
          avg_days = total_dts / total_items)
 
 
-sizes_regular <- sizes %>%
+sizes_standard <- sizes %>%
   filter(market == "Women") %>%
-  filter(size %in% sizes_regular_vec) %>%
+  filter(size %in% sizes_standard_vec) %>%
   filter(category != "Shoes") %>%
   CollapseSizes()
 
@@ -352,4 +340,24 @@ pants_sales %<>% left_join(lulu_sales, by = "date_sold")
 
 
 
+# Category graph by price range
+category_sales_price <- dbGetQuery(con, "SELECT date_sold, market, category, price_range, SUM(price), count(item_id) FROM solds WHERE category = 'Dresses' GROUP BY date_sold, market, category, price_range")
 
+
+
+category_sales_price %<>% mutate(count = as.numeric(count),
+                           week = lubridate::week(date_sold)) %>%
+  arrange(date_sold, market, category, price_range) %>%
+  group_by(market, category, price_range) %>% 
+  mutate(roll_sum   = rollmean(sum,   7, na.pad = T, align = "right"),
+         roll_count = rollmean(count, 7, na.pad = T, align = "right")) %>%
+  mutate(short_label = word(category, 1))
+
+
+
+price_graph_w <- category_sales_price %>% filter(date_sold >= "2020-05-15" & market == "Women") %>%
+  ggplot(data = ., aes(x = date_sold, y = roll_sum/1000)) + 
+  geom_line(aes(color = price_range), size = 1.3) +
+  labs(title = "Women's Clothing Poshmark Sales (7 Day Rolling Average)", x = "Date", y = "Average Daily Sales ($ thousands)")
+
+price_graph_w
