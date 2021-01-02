@@ -24,6 +24,9 @@ ScrapeItem <- function(item_url) {
   webpage <- try(read_html(item_url))
   if (unique(class(webpage) == "try-error")) {
     cat(paste("Item", i, "URL was not accessible, returning NULL \n"))
+    
+    q <- runif(1, min = 0.1, max = 1)
+    Sys.sleep(1 + q)
     return(NULL)
   }
 
@@ -31,6 +34,17 @@ ScrapeItem <- function(item_url) {
   title <- NodesToText(webpage, ".listing__title .fw--light")
   brand <- NodesToText(webpage, ".listing__brand")
   price <- NodesToText(webpage, ".listing__ipad-centered h1")
+  
+  # If price is NA, then item has been deleted, move on
+  if (is.na(price)) {
+    cat(paste("Item", i, "URL was not accessible, returning NULL \n"))
+    return(NULL)
+    
+    q <- runif(1, min = 0.1, max = 1)
+    Sys.sleep(1 + q)
+    
+  }
+  
   price <- strsplit(price, "\n")[[1]][1] %>%
     gsub("$", "", ., fixed = T) %>%
     gsub(",", "", ., fixed = T) %>%

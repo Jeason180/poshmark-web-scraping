@@ -11,9 +11,9 @@ source("./code/Posh Scraping Functions.R")
 # Update the handle of each closet you want to scrape.
 # Specify dates for new update and old update you are comparing against.
 # All other file paths update automatically, given folder structure
-user <- "maranna_yo"
-new_date <- "20201113"
-old_date <- "20200904"
+user <- "mogibeth"
+new_date <- "20201201"
+old_date <- "20201113"
 
 new_handle <- paste(user, new_date, sep = "_")
 old_handle <- paste(user, old_date, sep = "_")
@@ -88,7 +88,7 @@ combined_data <- closet %>%
 combined_data %<>% mutate(category = ifelse(category == "Pants" & market == "Women", "Pants & Jumpsuits", category),
                           category = ifelse(category == "Pants & Jumpsuits" & market == "Men", "Pants", category))
 
-closet <- combined_data
+closet <- combined_data %>% select(-match_id)
 save(closet, file = paste0("./output/closets/closet_", new_handle, ".RDa"))
 
 # Move old updated closet into old folder

@@ -6,7 +6,7 @@ setwd("C:/Users/maran/Documents/Data Projects/Web Scraping/Scraped datasets")
 rm(list = ls())
 gc()
 
-month_of_interest <- "2020-10"
+month_of_interest <- "2020-11"
 
 
 # Load data
@@ -16,7 +16,7 @@ scraped_items <- readRDS(paste0("./scraped_", month_of_interest, "_ALL.RDS"))
 #rescrape_files <- c("subcategory_20200604_20200624.RDa", "subcategory_20200625_20200630.RDa") %>%
 #  paste0("./price rescrape files/", .)
 
-rescrape_files <- c("subcategory_2020-10_rescrape_part1.RDa", "subcategory_2020-10_rescrape_part2.RDa") %>%
+rescrape_files <- c("subcategory_2020-11_rescrape.RDa") %>%
   paste0("./price rescrape files/", .)
 
 

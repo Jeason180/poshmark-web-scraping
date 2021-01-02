@@ -11,24 +11,24 @@ rm(list = ls())
 gc()
 
 # Read in all files
-files_to_read <- list.files("raw files/2020-10")
-files_to_read <- paste0("./raw files/2020-10/", files_to_read)
+files_to_read <- list.files("raw files/2020-12")
+files_to_read <- paste0("./raw files/2020-12/", files_to_read)
 
 scraped_items <-lapply(files_to_read, function(x) results <- readRDS(x)) %>% bind_rows
 
 
-old_items <- readRDS("scraped_2020-09_ALL.RDS")
+old_items <- readRDS("./compiled monthly/scraped_2020-11_ALL.RDS")
 gc()
 
 
 # For June/July 2020 - remove all subcategories observations under category "Pants" 
 # due to name change in subcategory to "Pants & Jumpsuits"
-scraped_items <- scraped_items %>%
-  filter(!(category == "Pants" & 
-         !is.na(subcategory) & 
-         date_sold >= "2020-06-04" & 
-         date_sold <= "2020-07-25"))
-gc()
+# scraped_items <- scraped_items %>%
+#   filter(!(category == "Pants" & 
+#          !is.na(subcategory) & 
+#          date_sold >= "2020-06-04" & 
+#          date_sold <= "2020-07-25"))
+# gc()
 
 
 
@@ -174,8 +174,11 @@ Dedupe_Merge <- function(new_items, compiled_items = NULL){
 results <- Dedupe_Merge(scraped_items, compiled_items = old_items)
 gc()
 
-results_crop <- results %>% filter(date_sold >= "2020-10-01" & date_sold <= "2020-10-31")
-saveRDS(results_crop, "scraped_2020-10_ALL.RDS")
+results_crop <- results %>% filter(date_sold >= "2020-12-01" & date_sold <= "2020-12-31")
+
+#saveRDS(results_crop, "./compiled monthly/scraped_2020-12_ALL.RDS")
+saveRDS(results_crop, "./compiled partial/scraped_2020-12_1-24.RDS")
+
 
 
 #scraped_items_output <- results %>% select(-item_url, -search_url)
