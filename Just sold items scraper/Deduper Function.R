@@ -11,13 +11,13 @@ rm(list = ls())
 gc()
 
 # Read in all files
-files_to_read <- list.files("raw files/2020-12")
-files_to_read <- paste0("./raw files/2020-12/", files_to_read)
+files_to_read <- list.files("raw files/2021-01")
+files_to_read <- paste0("./raw files/2021-01/", files_to_read)
 
 scraped_items <-lapply(files_to_read, function(x) results <- readRDS(x)) %>% bind_rows
 
 
-old_items <- readRDS("./compiled monthly/scraped_2020-11_ALL.RDS")
+old_items <- readRDS("./compiled monthly/scraped_2020-12_ALL.RDS")
 gc()
 
 
@@ -174,10 +174,10 @@ Dedupe_Merge <- function(new_items, compiled_items = NULL){
 results <- Dedupe_Merge(scraped_items, compiled_items = old_items)
 gc()
 
-results_crop <- results %>% filter(date_sold >= "2020-12-01" & date_sold <= "2020-12-31")
+results_crop <- results %>% filter(date_sold >= "2021-01-01" & date_sold <= "2021-01-18")
 
 #saveRDS(results_crop, "./compiled monthly/scraped_2020-12_ALL.RDS")
-saveRDS(results_crop, "./compiled partial/scraped_2020-12_1-24.RDS")
+saveRDS(results_crop, "./compiled partial/scraped_2021-01_1-18.RDS")
 
 
 

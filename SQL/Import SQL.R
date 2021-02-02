@@ -109,6 +109,9 @@ save(remove10, file = "./sql/removed_ids_10.RDa")
 remove11 <- AddMonth("scraped_2020-11_ALL.RDS")
 save(remove11, file = "./sql/removed_ids_11.RDa")
 
+remove12 <- AddMonth("./compiled monthly/scraped_2020-12_ALL.RDS")
+save(remove12, file = "./sql/removed_ids_12.RDa")
+
 
 # one off removals
 dbSendQuery(con, "DELETE FROM solds WHERE item_id = '5b03b92b3b1608d5e527040b'") # not a real price, distorts results
